@@ -1,16 +1,55 @@
 
-// TEST EMPTY WIDGETS
+;(function() {
+  var arseDependencies = {
+    pony: 'pony',
+    shitHeadEggFarmer: 'component.egg'
+  };
+
+  Yo.add('arse', arseDependencies, function (dep) {
+    console.log('arse dependencies: ', dep);
+    console.log('dep.pony', dep.pony);
+    console.log('dep.shitHeadEggFarmer', dep.shitHeadEggFarmer);
+    dep.pants.something();
+    console.log($('h1').html());
+  });
+})();
 
 
-//= require scripts/utils/device.js
-//= require scripts/utils/gotopage.js
 
-//= require scripts/product/upsell.js
-//= require scripts/upsell.js
-//= require scripts/crosssell.js
-//= require scripts/widgets/popup.js
+Yo.add('pony', { fartEggMan: 'component.egg' }, function (dep) {
+  console.log('pony dependencies: ', dep);
 
-//= require scripts/cart/addItem.js
-//= require scripts/cart/service.js
+  function helloWorld () {
+    console.log('Hello World');
+  }
 
-//= require scripts/page/checkout/directive.js
+  return {
+    helloWorld: helloWorld
+  };
+});
+
+
+
+Yo.add('component.egg', function () {
+  function sayEgg () {
+    console.log('pants');
+  }
+
+  return {
+    sayEgg: sayEgg
+  }
+});
+
+
+
+// Global Functions
+
+Yo.add('pants', function () {
+  function sayPants () {
+    console.log('Global Dependency Pants has just been used;');
+  }
+
+  return {
+    something: sayPants
+  }
+});

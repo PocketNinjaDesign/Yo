@@ -3,41 +3,21 @@
 
 # Yo
 
-## Dependency on a single page script
+## One of the best es5 dependency scripts for use with / without CMS content 
 
-Using gulp to import javascript files into 1 file and provide clean dependencies.
-Basically this is just a pet project to do this and learn at the same time :-)
-Currently it seems to work well with raw Javascript.  For importing 3rd party plugins that run on page ready there is a little more work :-S
+Let's put this simply, if you want to write code that can access other code at any point in the page whether it's a function in a CMS block or in some template then you don't have to worry too much about getting things to communicate **VERY SIMPLY!**
 
-1. [To Install](#to-install)
-2. [Why](#why)
-3. [So lets look at Yo](#so-lets-look-at-yo)
-   * [How To Use](#how-to-use)
+1. [Why](#why)
+2. [Quick Yo example](#quick-yo-example)
+2. [lets properly look at Yo](#so-lets-properly-look-at-yo)
+   * [How to initialise](#how-to-initialise)
    * [Debugging](#debugging)
+3. [To Install](#to-install)
 
 
-### To install
+## Why?
 
-Download the repo and run
-
-```
-$ npm install
-$ npm install gulp -g
-```
-
-The main gulp command is to simply run
-
-```
-$ gulp
-```
-
-This imports javascript into 1 file and copies it to a public folder along with the index html page.
-
-You can also just grab the full or minified versions from the dev folder and just get on coding one off.
-
-### Why?
-
-Try running the code below!
+Okay, try running the code below!
 
 ```javascript
   var namespace = {};
@@ -56,7 +36,7 @@ Try running the code below!
   }(namespace.widget.utils);
 ```
 
-Works lovely does'nt it.  Now run the code below with the 2 functions swapped around
+Works lovely doesn't it.  Now run the code below with the 2 functions swapped around
 
 ```javascript
   var namespace = {};
@@ -75,25 +55,56 @@ Works lovely does'nt it.  Now run the code below with the 2 functions swapped ar
     }();
 ```
 
-Does'nt work very well at all.  *I can put them in order or have an init function at the bottom of the page though!* You say!
+Doesn't work very well at all.  *I can put them in order or have an init function at the bottom of the page though!* You say!
+
 Well forget you and forget that! :-P
 
-## So lets look at Yo
+## Quick Yo Example
 
-### How To Use
+So exactly the same as above but in Yo at it's bare minimum
+
+```javascript
+  var Yo = new Yo();
+  Yo.init({});
+
+  Yo.add('widget.tooltip', { tooltip: 'widgets.utils' }, function (dep) {
+    dep.utils.output();
+  });
+
+  Yo.add('widget.utils', function () {
+    return {
+      output: function() {
+        console.log('Utils are used');
+      }
+    }
+  });
+```
+
+As long as it's after the Yo script in the header, these widgets can be added anywhere in a CMS, body, header, widget PHP template anywhere. They will wait to communicate and have full access to their open methods.
+
+That is generally all there is to it!  Download the Yo Script and have a tinker with some simple scripts of your own just to understand there is nothing more than that.
+
+
+
+## Lets properly look at Yo
+
+### How to initialise
 
 ```javascript
   var CompanyName = {};
   CompanyName.whatever = {};
 
+  var Yo = new Yo();
   Yo.init({
     // defaults to Yo if not set.
     namespace: CompanyName.whatever,
     // defaults to 'module' if not set.  For example
     scriptRoot: 'scriptiesHere',
-    // For outputting scripts Added, Loaded and dependency Connections
+    // For dependencies you want available for all other scripts
+    globalDependencies: {},
+    // For outputting scripts Added, Loaded and dependency Connections, default: false
     debugMode: true,
-    // For outputing only logs by the scripts / keywords listed, case sensitive
+    // For outputting only logs by the scripts / keywords listed, case sensitive
     debugScripts: ['scriptX', 'scriptY']
   });
 ```
@@ -101,29 +112,48 @@ Well forget you and forget that! :-P
 
 ```javascript
   var CompanyName = {};
-  CompanyName.whatever = {};
+  CompanyName.whatever.banana = {};
 
+  var Yo = new Yo();
   Yo.init({
-    namespace: CompanyName.whatever,
+    namespace: CompanyName.whatever.banana,
   });
 
-  // returns CompanyName.whatever.module
+  // adds all scripts to - CompanyName.whatever.banana.module
 
   Yo.init({
     namespace: CompanyName.whatever,
     scriptRoot: 'scriptiesHere'
   });
 
-  // returns CompanyName.whatever.scriptiesHere
+  // adds all scripts to - CompanyName.whatever.scriptiesHere
+```
+
+Or if you don't add a Company namespace, Yo becomes the host for all of your scripts.
+
+```javascript
+  var Yo = new Yo();
+  Yo.init({});
+
+  // Default - Yo.modules are where all added scripts go
+```
+
+You can make as many instances of Yo if you want to split scripts into their own ecosystems. Though that will rarely happen.
+
+```javascript
+  var Egg = new Yo();
+  Egg.init({});
+
+  var Cheese = new Yo();
+  Cheese.init({});
 ```
 
 
 
-
-#### For new scripts
+### For new scripts
 
 ```javascript
-  Yo.add('Lister', ['dependencyScript'], function(depScript) {
+  Yo.add('Lister', { dependencyScript: 'script.name' }, function(dep) {
   });
 ```
 
@@ -137,7 +167,7 @@ Or
 Or with namespaces
 
 ```javascript
-  Yo.add('widgets.some.overly.long.namespace.branch.Lister', function() {
+  Yo.add('widgets.some.overly.long.namespace.branchLister', function() {
     var output = function(_name) {
       console.log('Hello lister from ' + _name);
     }
@@ -145,45 +175,159 @@ Or with namespaces
       output: output
     };
   });
-
-  Yo.add('Utilities',['widgets.some.overly.long.namespace.branch.Lister'], function(lister) {
-    lister.output('eyeamaman');
-    return {};
-  });
-```
-
-#### and add the following line to main.js
-
-```javascript
-  //= require widgets/lister.js
 ```
 
 
-#### with dependencies
+### Dependency examples
 
 ```javascript
-  Yo.add('Lister', ['something', 'different'], function(something, different) {
-    something.show();
-    different.show();
+  Yo.add('Lister', { something: 'widget.something', different: 'widget.different' }, function(dep) {
+    dep.something.show();
+    dep.different.show();
   });
 
-  Yo.add('Something', function() {
-    var show = function() {
+  Yo.add('widget.something', { different: 'widget.different' }, function (dep) {
+    var show = function () {
       console.log('say HI from something');
     };
+
+    dep.different.show();
+
     return {
       show: show
     }
   });
 
-  Yo.add('Different', function() {
-    var show = function() {
+  Yo.add('widget.different', function () {
+    var show = function () {
       console.log('say HI from different');
     };
     return {
       show: show
     }
   });
+```
+
+Let's clean this up just a little and imagine these scripts are anywhere
+
+```javascript
+
+  (function () {
+    var dependencies = {
+      something: 'widget.Something',
+      different: 'widget.Different'
+    };
+
+    Yo.add('Lister', dependencies, function(dep) {
+      dep.something.show();
+      dep.different.show();
+    });
+  })();
+
+  (function () {
+    var dependencies = {
+      differentNameSameScript: 'widget.Different'
+    };
+
+    Yo.add('Something', dependencies, function (dep) {
+      var show = function () {
+        console.log('say HI from something');
+      };
+
+      dep.differentNameSameScript.show();
+      
+      return {
+        show: show
+      }
+    });
+  })();
+  
+  Yo.add('Different', function () {
+    var show = function () {
+      console.log('say HI from different');
+    };
+    return {
+      show: show
+    }
+  });
+```
+
+Woooagh, what's going on there? All we're doing is wrapping self invoking anonymous functions around the Yo scripts and moving the dependencies object into a variable to make it cleaner for listing.
+
+**Also notice a big thing** the script Different is used by 2 scripts and yet the name has been changed, so in one it is called different: `dep.different` and in the other it is differentNameSameScript: `dep.differentNameSameScript`. So if you have a way of naming scripts like Service, Controller or Directives thanks to using AngularJS you may end up with folders like this.
+
+* widgets
+  * modal
+    * service.js
+    * directive.js
+  * videoPlayer
+    * service.js
+    * directive.js
+
+Or however you do it, there could be scripts that have the same name which you are pulling into other scripts.
+
+So like above you could do
+
+```javascript
+  var dependencies = {
+    modalService: 'widgets.modal.service',
+    videoPlayerService: 'widgets.videoPlayer.service'
+  };
+
+  Yo.add('CheckDaCone', dependencies, function(dep) {
+    dep.modalService.view();
+    dep.videoPlayerService.activate();
+  });
+```
+
+### Global Dependencies
+
+What if you have a script that could be anywhere which is needed by everything?
+
+```javascript
+
+  (function () {
+    Yo.add('CheckDaCone', function(dep) {
+      $('body').html('lets Get Using Jquer yNow');
+    });
+  })();
+
+  Yo.add('jQuery');
+
+  // Or a global script which returns a load of helper methods
+
+  (function () {
+    Yo.add('CheckDaCone', function(dep) {
+      dep.mainStuff.mathsStuff.addBoth(1, 1);
+      console.log(dep.mainStuff.websiteVars.email);
+    });
+  })();
+
+  Yo.add('mainStuff'. function () {
+    var mathsStuff = {
+      addBoth: function (a, b) {
+        return a + b;
+      }
+    };
+
+    var websiteVars = {
+      email: 'checkDaCone@youerd.com',
+      country: 'USA'
+    }
+
+    return {
+      mathsStuff: mathsStuff,
+      websiteVars: websiteVars
+    };
+  });
+
+  // if you want a script to ignore global scripts
+
+  (function () {
+    Yo.add('CheckDaCone', false, function() {
+
+    });
+  })();
 ```
 
 ### Debugging
@@ -221,3 +365,30 @@ If you include the debugScripts option with loadOrder you can see the render ord
 
   Yo.loadOrder
 ```
+
+
+# Dev Area
+
+## To install
+
+Download the repo and run
+
+```
+$ npm install
+$ npm install gulp -g
+```
+
+The main gulp command is to simply run
+
+```
+$ gulp
+```
+
+This imports javascript into 1 file and copies it to a public folder along with the index html page.
+
+You can also just grab the full or minified versions from the dev folder and just get on coding one off.
+
+
+## Testing
+
+Run `./node_modules/karma/bin/karma start`

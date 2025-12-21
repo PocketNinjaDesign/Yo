@@ -12,5 +12,16 @@
   <p>Then write whatever code you want without worrying about dependencies and any large files as it's all raw
     Javascript and gives you the freedom to be creative yourself.</p>
   <script src="js/main-body.js"></script>
+  <script src="js/jquery.min.js"></script>
+  <script>
+  ;(function () {
+    console.log('Before jQuery loading');
+
+    Yo.add('$', function () {
+      console.log('jQuery Loading');
+      return { $: jQuery };
+    });
+  })();
+  </script>
 </body>
 </html>

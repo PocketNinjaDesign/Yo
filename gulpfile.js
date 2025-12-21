@@ -33,4 +33,8 @@ gulp.task('compress', function() {
     .pipe(gulp.dest('./dev/'))
 });
 
+gulp.task('watch', function() {
+  gulp.watch('./dev/js/**/**.js', ['default']); 
+});
+
 gulp.task('default', ['scripts', 'copy-html']);
