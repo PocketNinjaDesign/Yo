@@ -3,7 +3,7 @@
 
 # Yo
 
-## One of the best es5 dependency scripts for use with / without CMS content 
+## One of the best es5 dependency scripts for use with / without CMS content
 
 Let's put this simply, if you want to write code that can access other code at any point in the page whether it's a function in a CMS block or in some template then you don't have to worry too much about getting things to communicate **VERY SIMPLY!**
 
@@ -235,13 +235,13 @@ Let's clean this up just a little and imagine these scripts are anywhere
       };
 
       dep.differentNameSameScript.show();
-      
+
       return {
         show: show
       }
     });
   })();
-  
+
   Yo.add('Different', function () {
     var show = function () {
       console.log('say HI from different');
@@ -369,26 +369,19 @@ If you include the debugScripts option with loadOrder you can see the render ord
 
 # Dev Area
 
-## To install
+## To tinker with
 
-Download the repo and run
+You can just get the minified file if you want it asap and add it to the top of your page. But if you want to download the repo and tinker with it:
 
 ```
 $ npm install
-$ npm install gulp -g
+$ npm run build
 ```
 
-The main gulp command is to simply run
+if you have npx installed then great if not get that running OR use whatever you like to use to serve a folder as a local.
 
 ```
-$ gulp
+$ npx serve ./dist
 ```
 
-This imports javascript into 1 file and copies it to a public folder along with the index html page.
-
-You can also just grab the full or minified versions from the dev folder and just get on coding one off.
-
-
-## Testing
-
-Run `./node_modules/karma/bin/karma start`
+You can then add any files you want to the dist folder for testing reasons. nice and simple as it all should be
