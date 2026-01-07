@@ -24,19 +24,9 @@ const htmlContent = `<!DOCTYPE html>
   <p>This is a starter page to test your <code>Yo</code> script.</p>
   <p>Open the browser console (F12) to see output.</p>
 
-  <h2>Basic Usage Example</h2>
-  <pre><code>// Example: Log something
-Yo.log('Hello from Yo!');
-
-// Example: Select elements
-const el = Yo('#non-existent'); // returns empty collection safely
-console.log(el);
-
-// Add your own test code below:</code></pre>
-
   <hr>
 
-  <h2>Your Custom Scripts Go Here</h2>
+  <h2>Your Custom Scripts can go here</h2>
   <script>
     var CompanyName = {};
     CompanyName.whatever = {};
