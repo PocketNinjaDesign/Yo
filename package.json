@@ -3,36 +3,26 @@
   "version": "1.0.0",
   "description": "Script for working with dependencies within the same file",
   "main": "gulpfile.js",
-  "scripts": {
-    "test": "karma start --single-run --browsers Chrome"
-  },
   "repository": {
     "type": "git",
-    "url": "https://github.com/eyeamaman/js-dependency-single-page.git"
+    "url": "https://github.com/PocketNinjaDesign/Yo"
   },
   "keywords": [
     "gulp",
     "single",
     "page",
-    "dependencies"
+    "dependencies",
+    "wordpress"
   ],
+  "scripts": {
+    "minify": "node minify.js",
+    "init": "node create.js",
+    "build": "npm run minify && npm run init"
+  },
   "author": "Pockjetninja.Design",
   "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/eyeamaman/js-dependency-single-page/issues"
-  },
-  "homepage": "https://github.com/eyeamaman/js-dependency-single-page",
-  "dependencies": {},
-  "devDependencies": {
-    "gulp": "^3.9.0",
-    "gulp-include": "^2.0.3",
-    "gulp-minify": "0.0.14",
-    "gulp-remove-empty-lines": "0.0.8",
-    "jasmine": "^2.6.0",
-    "jasmine-core": "^2.6.2",
-    "karma": "^1.7.0",
-    "karma-chrome-launcher": "^2.1.1",
-    "karma-firefox-launcher": "^1.0.1",
-    "karma-jasmine": "^1.1.0"
+  "homepage": "https://github.com/PocketNinjaDesign/Yo",
+  "dependencies": {
+    "@swc/core": "^1.15.7"
   }
 }
