@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Yo Hello World Page</title>
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      padding: 2rem;
+      line-height: 1.6;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    pre, code {
+      background: #f4f4f4;
+      padding: 0.2em 0.4em;
+      border-radius: 4px;
+    }
+    pre {
+      padding: 1rem;
+    }
+  </style>
+
+  <!-- YOUR_MINIFIED_SCRIPT will be replaced -->
+  <script src="YOUR_MINIFIED_SCRIPT"></script>
+</head>
+<body>
+  <h1>Yo - Test Page</h1>
+  <p>This is a starter page to test your <code>Yo</code> script.</p>
+  <p>Open the browser console (F12) to see output.</p>
+
+  <hr>
+
+  <h2>Your Custom Scripts can go here</h2>
+
+  <script>
+    // Namespace setup - feel free to change
+    var CompanyName = window.CompanyName || {};
+    CompanyName.whatever = CompanyName.whatever || {};
+
+    var YourYo = new Yo();
+
+    YourYo.init({
+      namespace: CompanyName.whatever,
+      scriptRoot: 'scriptiesHere',         // ← customize if needed
+      // globalDependencies: { ... },
+      // debugMode: true,
+      // debugScripts: ['myCoolWidget', 'data.something']
+    });
+
+    // ←←←←←←←←←←←←←←←←←←←←←←←←←←←←
+    // Write your test code / examples below!
+    // Feel free to delete or comment out anything here
+    // ←←←←←←←←←←←←←←←←←←←←←←←←←←←←
+
+    console.log("YourYo instance:", YourYo);
+    // Example: YourYo.add('test.hello', () => console.log("Hello from Yo!"));
+  </script>
+</body>
+</html>
