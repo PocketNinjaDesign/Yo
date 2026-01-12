@@ -67,7 +67,7 @@ So exactly the same as above but in Yo at it's bare minimum
   var Yo = new Yo();
   Yo.init({});
 
-  Yo.add('widget.tooltip', { tooltip: 'widgets.utils' }, function (dep) {
+  Yo.add('widget.tooltip', { utils: 'widgets.utils' }, function (dep) {
     dep.utils.output();
   });
 
