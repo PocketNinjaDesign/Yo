@@ -2,28 +2,33 @@ const { minify } = require('@swc/core');
 const fs = require('fs');
 const path = require('path');
 
-// Customize these paths
-const inputFile = 'yo.js';      // Your source JS file
-const outputFile = 'dist/yo.min.js'; // Output minified file
+const inputFile = 'yo.js';
+const outputPaths = ['yo.min.js', 'dist/yo.min.js'];
 
-const code = fs.readFileSync(path.resolve(inputFile), 'utf8');
+(async () => {
+  const code = fs.readFileSync(inputFile, 'utf8');
 
-minify(code, {
-  compress: true,   // Enable dead code elimination, inlining, etc.
-  mangle: true,     // Shorten variable/property names
-  // Optional tweaks (compatible with Terser-style options)
-  // sourceMap: true, // Generate a .map file if needed
-  // module: true,    // Treat as ES module
-}).then(result => {
-  fs.mkdirSync(path.dirname(outputFile), { recursive: true });
-  fs.writeFileSync(outputFile, result.code);
+  for (const outPath of outputPaths) {
+    try {
+      const result = await minify(code, {
+        compress: true,
+        mangle: true,
+        // sourceMap: true,
+      });
 
-  if (result.map) {
-    fs.writeFileSync(outputFile + '.map', result.map);
+      fs.mkdirSync(path.dirname(outPath), { recursive: true });
+      fs.writeFileSync(outPath, result.code);
+
+      if (result.map) {
+        fs.writeFileSync(outPath + '.map', result.map);
+      }
+
+      console.log(`Created → ${outPath}`);
+    } catch (err) {
+      console.error(`Failed: ${outPath}`, err);
+      process.exit(1);
+    }
   }
 
-  console.log(`Minified ${inputFile} → ${outputFile}`);
-}).catch(err => {
-  console.error('Minification failed:', err);
-  process.exit(1);
-});
+  console.log('Done! All minified versions created.');
+})();
