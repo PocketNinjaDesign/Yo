@@ -32,6 +32,26 @@
 
   <hr>
 
+  <h2>Yo - Public Methods</h2>
+
+  <h3>Argument Checker</h3>
+  <p>check multiple is type of by feeding 2 arrays, 1 of the values and the other containing the types they should be</p>
+  <pre><code>// returns: true/false
+const plinky = YourYo.argumentChecker(
+  [1,'',[],{},undefined, null],
+  ['Number', 'String', 'Array', 'Object', 'Undefined', 'Null']
+);</code></pre>
+
+<h3>is Type of</h3>
+  <p>check multiple is type of by feeding 2 arrays, 1 of the values and the other containing the types they should be</p>
+  <pre><code>// returns: true/false
+const plinky = YourYo.argumentChecker(
+  [1,'',[],{},undefined, null],
+  ['Number', 'String', 'Array', 'Object', 'Undefined', 'Null']
+);</code></pre>
+
+  <hr>
+
   <h2>Your Custom Scripts can go here</h2>
 
   <script>
@@ -56,6 +76,21 @@
 
     console.log("YourYo instance:", YourYo);
     // Example: YourYo.add('test.hello', () => console.log("Hello from Yo!"));
+
+    console.log( YourYo.isTypeOf('Array', []) );
+    console.log( YourYo.argumentChecker([1,'',[],{},undefined], ['Number', 'String', 'Array', 'Object', 'Undefined']) );
+
+    YourYo.add("something", { egg: 'the.egg' }, (dep) => {
+      console.log(`Something ${dep.egg.say()}`);
+    });
+
+    YourYo.add("the.egg", () => {
+      return {
+        say: () => {
+          return 'The EGG'
+        }
+      }
+    });
   </script>
 </body>
 </html>
