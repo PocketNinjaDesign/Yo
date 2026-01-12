@@ -258,6 +258,7 @@ function Yo() {
 
     if (load.cache.has(resource)) {
       const entry = load.cache.get(resource);
+      entry.totalCalls++; // add 1 to the total calls to this script
       if (entry.loaded) {
         return Promise.resolve();
       }
@@ -270,7 +271,8 @@ function Yo() {
     // New load
     const entry = {
       loaded: false,
-      callbacks: []
+      callbacks: [],
+      totalCalls: 1 // first init call makes 1 so may as well start with 1
     };
     load.cache.set(resource, entry);
 
@@ -537,6 +539,19 @@ function Yo() {
       log('incorrect params added', arguments);
       return false;
     }
+
+    if (!scriptName) {
+      log('YO.ADD failed: no valid scriptName provided');
+      return false;
+    }
+
+    // No overriding or duplicate file paths, block here
+    if (nsGet(scriptName, Yo.loadedState)) {
+      const msg = `Yo.add: Duplicate registration attempt for script "${scriptName}"`;
+      console.error(msg);
+      throw new Error(msg);
+    }
+
 
     log('YO.ADD: ' + scriptName);
     totalScriptsAdded += 1;
