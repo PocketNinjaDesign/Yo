@@ -3,7 +3,7 @@
 
 /**
  * Yo, the single page dependency management script created by pocketninja for his own amusement
- * version 2.0.0
+ * version 2.0.1
  *
  * @module Yo
  * @returns {object} public functions
@@ -11,7 +11,7 @@
 function Yo() {
   "use strict";
 
-  var version = '2.0.0';
+  const version = '2.0.1';
 
   // Yo.loadedState.tooltip.{
   //    loaded: boolean
@@ -25,22 +25,22 @@ function Yo() {
    * @private
    * @var {object} ns
    */
-  var ns;
-  var scriptRoot = 'modules';
+  let ns;
+  let scriptRoot = 'modules';
 
   /**
    * Counter for items added for debugging output
    * @private
    * @var {number} totalScriptsAdded
    */
-  var totalScriptsAdded = 0;
+  let totalScriptsAdded = 0;
 
   /**
    * Counter for items loaded for debugging output
    * @private
    * @var {number} totalScriptsLoaded
    */
-  var totalScriptsLoaded = 0;
+  let totalScriptsLoaded = 0;
 
   /**
    * After creating Yo you need to provide it with your main namespace to any level within it. Like "company" or "company.cool.scripts"
@@ -59,7 +59,7 @@ function Yo() {
    *   debugScripts: ['scriptOne', 'scriptTwo']
    * });
    */
-  var init = function(data){
+  const init = function(data){
     ns = data.namespace || Yo;
     Yo.loadedState = {};
     if(data.scriptRoot) {
@@ -78,11 +78,11 @@ function Yo() {
     ns.globalDependencies = data.globalDependencies || undefined;
   };
 
-  var isDebugScriptsEmpty = function() {
+  const isDebugScriptsEmpty = function() {
     return isTypeOf('Array', ns.debugScripts) && ns.debugScripts.length < 1;
   };
 
-  var renderLogOrDebugScript = function(str, fn) {
+  const renderLogOrDebugScript = function(str, fn) {
     if(ns.debugMode) {
       if(ns.debugScripts === undefined || isDebugScriptsEmpty()) {
         fn(str);
@@ -97,13 +97,13 @@ function Yo() {
     }
   };
 
-  var log = function(str) {
+  const log = function(str) {
     renderLogOrDebugScript(str, function() {
       console.log(str);
     });
   };
 
-  var isTypeOf = function(str, obj) {
+  const isTypeOf = function(str, obj) {
     return '[object ' + str + ']' === Object.prototype.toString.call(obj);
   };
 
@@ -120,9 +120,9 @@ function Yo() {
    * @returns {boolean} based on the arguments list being correct
    *
    */
-  var argumentChecker = function(args, argSequence) {
+  const argumentChecker = function(args, argSequence) {
     if(args.length === argSequence.length) {
-      var i, val;
+      let i, val;
       for (i = 0; i < args.length; i++) {
         val = args[i];
         if (!isTypeOf(argSequence[i], val)) {
@@ -138,13 +138,13 @@ function Yo() {
     }
   };
 
-  var arrayClone = function(arr) {
+  const arrayClone = function(arr) {
     return arr.slice(0);
   };
 
-  var extend = function() {
-    for(var i=1; i < arguments.length; i++) {
-      for(var key in arguments[i]) {
+  const extend = function() {
+    for(let i=1; i < arguments.length; i++) {
+      for(let key in arguments[i]) {
         if(arguments[i].hasOwnProperty(key)) {
           arguments[0][key] = arguments[i][key];
         }
@@ -165,19 +165,20 @@ function Yo() {
    * @returns {Object} of the namespace requested
    *
    */
-  var nsGet = function(_nsStr, _nsObject, _getObjectRoot) {
-    var keyArr;
+  const nsGet = function(_nsStr, _nsObject, _getObjectRoot) {
+    let keyArr;
 
     if (isTypeOf('Array', _nsStr)) {
       keyArr = _nsStr[1].split('.');
-    } else {
+    }
+    else {
       keyArr = _nsStr.split('.');
     }
 
-    var currentObj = _nsObject;
+    let currentObj = _nsObject;
     _getObjectRoot = _getObjectRoot || false;
 
-    for(var i = 0; i < keyArr.length; i++) {
+    for(let i = 0; i < keyArr.length; i++) {
       if (!currentObj[keyArr[i]]) {
         return false;
       }
@@ -205,16 +206,17 @@ function Yo() {
    * @returns {object} Section of the object param
    *
    */
-  var nsSet = function(_nsStr, _nsObject, _getObjectRoot) {
-    var keyArr;
+  const nsSet = function(_nsStr, _nsObject, _getObjectRoot) {
+    let keyArr;
 
     if (isTypeOf('Array', _nsStr)) {
       keyArr = _nsStr[1].split('.');
-    } else {
+    }
+    else {
       keyArr = _nsStr.split('.');
     }
 
-    var currentObj = _nsObject;
+    let currentObj = _nsObject;
     _getObjectRoot = _getObjectRoot || false;
 
     if (keyArr.length < 2) {
@@ -227,7 +229,7 @@ function Yo() {
       return currentObj[_nsStr];
     }
     else {
-      for(var i = 0; i < keyArr.length; i++) {
+      for(let i = 0; i < keyArr.length; i++) {
         if (!currentObj[keyArr[i]]) {
           currentObj[keyArr[i]] = {};
         }
@@ -239,6 +241,77 @@ function Yo() {
     }
 
     return currentObj;
+  };
+
+
+
+  const load = function(resource) {
+    // resource can be:
+    // - .js file → loads as <script>
+    // - .css file → loads as <link rel="stylesheet">
+    // - any other URL → loads as <script> by default
+
+    const isCss = /\.css$/i.test(resource);
+
+    // Shared cache (prevents double loading)
+    load.cache = load.cache || new Map();
+
+    if (load.cache.has(resource)) {
+      const entry = load.cache.get(resource);
+      if (entry.loaded) {
+        return Promise.resolve();
+      }
+      // Still loading → wait for it
+      return new Promise(resolve => {
+        entry.callbacks.push(resolve);
+      });
+    }
+
+    // New load
+    const entry = {
+      loaded: false,
+      callbacks: []
+    };
+    load.cache.set(resource, entry);
+
+    return new Promise((resolve, reject) => {
+      let el;
+
+      if (isCss) {
+        el = document.createElement('link');
+        el.rel = 'stylesheet';
+        el.href = resource;
+      } else {
+        el = document.createElement('script');
+        el.src = resource;
+        el.async = true;
+      }
+
+      el.onload = () => {
+        entry.loaded = true;
+        resolve();
+        // Run all waiting callbacks
+        entry.callbacks.forEach(cb => cb());
+        entry.callbacks = []; // clean up
+        if (ns?.debugMode) {
+          log(`YO.LOAD success: ${resource} (${isCss ? 'CSS' : 'JS'})`);
+        }
+      };
+
+      el.onerror = (err) => {
+        load.cache.delete(resource);
+        reject(err);
+        if (ns?.debugMode) {
+          log(`YO.LOAD failed: ${resource}`);
+        }
+      };
+
+      document.head.appendChild(el);
+
+      if (ns?.debugMode) {
+        log(`YO.LOAD started: ${resource}`);
+      }
+    });
   };
 
 
@@ -257,24 +330,24 @@ function Yo() {
    *   return {}
    * });
    */
-  var add = function() {
+  const add = function() {
 
-    var scriptName;
-    var scriptDependencies = [];
-    var scriptCallback;
-    var hasNoDependencies = true;
+    let scriptName;
+    let scriptDependencies = [];
+    let scriptCallback;
+    let hasNoDependencies = true;
 
-    var getLoadedState = function(_script) {
+    const getLoadedState = function(_script) {
       return nsGet(_script, Yo.loadedState);
     };
 
-    var setLoadedState = function(_script, _data) {
+    const setLoadedState = function(_script, _data) {
       extend(nsSet(_script, Yo.loadedState), _data);
     };
 
-    var activateScript = function(_script) {
-      var nsLocation = nsSet(_script, ns[scriptRoot], true);
-      var lastNameSpace = _script.split('.');
+    const activateScript = function(_script) {
+      const nsLocation = nsSet(_script, ns[scriptRoot], true);
+      let lastNameSpace = _script.split('.');
       lastNameSpace = lastNameSpace[lastNameSpace.length - 1];
 
       if(getLoadedState(_script).loaded) {
@@ -295,11 +368,11 @@ function Yo() {
       }
     };
 
-    var getScript = function(_script) {
+    const getScript = function(_script) {
       return nsSet(_script, ns[scriptRoot]);
     };
 
-    var createOrEditLoadedState = function(_data, _script) {
+    const createOrEditLoadedState = function(_data, _script) {
       _script = _script || scriptName;
 
       setLoadedState(_script, extend({
@@ -317,7 +390,7 @@ function Yo() {
      * @function pushFunction
      * @private
      */
-    var pushFunction = function() {
+    const pushFunction = function() {
       createOrEditLoadedState({
         loaded: true,
         loadedFunc: function() {
@@ -325,7 +398,7 @@ function Yo() {
         }
       });
 
-      var obj = {};
+      const obj = {};
 
       objectToArray(scriptDependencies).map(function(_scriptName) {
         obj[_scriptName[0]] = getScript(_scriptName[1]);
@@ -339,18 +412,18 @@ function Yo() {
     };
 
 
-    var checkDependedBy = function() {
-      var dependedBy = getLoadedState(scriptName).dependedBy;
-      var otherScript;
+    const checkDependedBy = function() {
+      const dependedBy = getLoadedState(scriptName).dependedBy;
+      let otherScript;
 
       // Loop through dependedBy list
-      for(var i = 0; i < dependedBy.length; i++) {
+      for(let i = 0; i < dependedBy.length; i++) {
         otherScript = dependedBy[i];
 
         // Each dependedBy has a dependency list, so this removes
         // the current script from it's array and then removes the
         // dependency from the current script dependedBy
-        for(var a = 0; a < getLoadedState(otherScript).dependencies.length; a++) {
+        for(let a = 0; a < getLoadedState(otherScript).dependencies.length; a++) {
           if (getLoadedState(otherScript).dependencies[a][1] === scriptName) {
             getLoadedState(otherScript).dependencies.splice(a, 1);
             dependedBy.splice(i, 1);
@@ -368,15 +441,16 @@ function Yo() {
     };
 
 
-    var checkDependencies = function() {
-      var allDependenciesLoaded = true;
-      var scriptDependents = getLoadedState(scriptName).dependencies;
-      var dependencyScript;
-      var dependencyScriptName;
+    const checkDependencies = function() {
+      let allDependenciesLoaded = true;
+      const scriptDependents = getLoadedState(scriptName).dependencies;
+      let dependencyScript;
+      let dependencyScriptName;
 
-      log('SCRIPTS: ' + scriptName + ' dependent on [' + scriptDependents.toString() + ']');
+      log('SCRIPTS: ' + scriptName + ' dependent on [' + JSON.toString(scriptDependents) + ']');
+      log(scriptDependents);
 
-      for(var i = 0; i < scriptDependents.length; i++) {
+      for(let i = 0; i < scriptDependents.length; i++) {
         dependencyScript = scriptDependents[i];
         dependencyScriptName = dependencyScript[1];
 
@@ -387,6 +461,10 @@ function Yo() {
         }
 
         if(!getLoadedState(dependencyScriptName).loaded) {
+          log('QUICK TEST');
+          log(dependencyScriptName);
+          log(getLoadedState(dependencyScriptName));
+          log('-------------------');
           getLoadedState(dependencyScriptName).dependedBy.push(scriptName);
           allDependenciesLoaded = false;
         }
@@ -401,12 +479,12 @@ function Yo() {
       }
     };
 
-    var hasFunction = true;
+    let hasFunction = true;
 
-    var objectHasValue = function (obj, value) {
-      var keys = Object.keys(obj);
+    const objectHasValue = function (obj, value) {
+      const keys = Object.keys(obj);
 
-      for (var i = 0; i < keys.length; i += 1) {
+      for (let i = 0; i < keys.length; i += 1) {
         if (obj[keys[i]] === value) {
           return true;
         }
@@ -415,15 +493,15 @@ function Yo() {
       return false;
     };
 
-    var objectIsEmpty = function (obj) {
+    const objectIsEmpty = function (obj) {
       return Object.keys(obj).length < 1;
     };
 
-    var objectToArray = function (obj) {
-      var keys = Object.keys(obj);
-      var returnList = [];
+    const objectToArray = function (obj) {
+      const keys = Object.keys(obj);
+      const returnList = [];
 
-      for (var i = 0; i < keys.length; i += 1) {
+      for (let i = 0; i < keys.length; i += 1) {
         returnList.push([keys[i], obj[keys[i]]]);
       }
 
@@ -451,7 +529,7 @@ function Yo() {
       }
     }
     else if(argumentChecker(arguments, ['String'])) {
-      // For window global vars to activate other scripts
+      // For window global variables to activate other scripts
       scriptName = arguments[0];
       hasFunction = false;
     }
@@ -495,6 +573,7 @@ function Yo() {
     extend: extend,
     init: init,
     isTypeOf: isTypeOf,
+    load: load,
     version: version
   }
 }
