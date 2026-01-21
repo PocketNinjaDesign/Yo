@@ -121,36 +121,26 @@ function Yo() {
    *
    */
   const argumentChecker = function(args, argSequence) {
-    if(args.length === argSequence.length) {
-      let i, val;
-      for (i = 0; i < args.length; i++) {
-        val = args[i];
-        if (!isTypeOf(argSequence[i], val)) {
-          log('Error with value comparison: ' + val + ', EXPECTED: ' + argSequence[i]);
-          return false;
-        }
-      }
+    if (args.length !== argSequence.length) return false;
 
-      return true;
-    }
-    else {
-      return false;
-    }
-  };
+    for (let i = 0; i < args.length; i++) {
+      const val = args[i];
+      const expected = argSequence[i];
 
-  const arrayClone = function(arr) {
-    return arr.slice(0);
-  };
+      if (!isTypeOf(expected, val)) {
+        const actualTag = Object.prototype.toString.call(val);
+        const actualType = actualTag.slice(8, -1);
 
-  const extend = function() {
-    for(let i=1; i < arguments.length; i++) {
-      for(let key in arguments[i]) {
-        if(arguments[i].hasOwnProperty(key)) {
-          arguments[0][key] = arguments[i][key];
-        }
+        log(
+          `argumentChecker: type mismatch at index ${i} - ` +
+          `expected '${expected}', got '${actualType}' ` +
+          `(value: ${String(val)})`
+        );
+        return false;
       }
     }
-    return arguments[0];
+
+    return true;
   };
 
   /**
@@ -344,7 +334,7 @@ function Yo() {
     };
 
     const setLoadedState = function(_script, _data) {
-      extend(nsSet(_script, Yo.loadedState), _data);
+      Object.assign(nsSet(_script, Yo.loadedState), _data);
     };
 
     const activateScript = function(_script) {
@@ -377,7 +367,7 @@ function Yo() {
     const createOrEditLoadedState = function(_data, _script) {
       _script = _script || scriptName;
 
-      setLoadedState(_script, extend({
+      setLoadedState(_script, Object.assign({
         loaded: false,
         loadedFunc: function(){},
         runAfterActivation: function(){},
@@ -515,7 +505,7 @@ function Yo() {
       scriptDependencies = arguments[1];
 
       if (ns.globalDependencies) {
-        scriptDependencies = extend({}, scriptDependencies, ns.globalDependencies);
+        scriptDependencies = Object.assign({}, scriptDependencies, ns.globalDependencies);
       }
       // scriptDependencies = arguments[1];
       scriptCallback = arguments[2];
@@ -526,7 +516,7 @@ function Yo() {
       scriptCallback = arguments[1];
       // This uses global dependencies now
       if (ns.globalDependencies !== undefined && !objectHasValue(ns.globalDependencies, scriptName)) {
-        scriptDependencies = extend({}, ns.globalDependencies);
+        scriptDependencies = Object.assign({}, ns.globalDependencies);
         hasNoDependencies = objectIsEmpty(scriptDependencies);
       }
     }
@@ -546,11 +536,11 @@ function Yo() {
     }
 
     // No overriding or duplicate file paths, block here
-    if (nsGet(scriptName, Yo.loadedState)) {
-      const msg = `Yo.add: Duplicate registration attempt for script "${scriptName}"`;
-      console.error(msg);
-      throw new Error(msg);
-    }
+    // if (nsGet(scriptName, Yo.loadedState)) {
+    //   const msg = `Yo.add: Duplicate registration attempt for script "${scriptName}"`;
+    //   console.error(msg);
+    //   throw new Error(msg);
+    // }
 
 
     log('YO.ADD: ' + scriptName);
@@ -584,8 +574,6 @@ function Yo() {
   return {
     add: add,
     argumentChecker: argumentChecker,
-    arrayClone: arrayClone,
-    extend: extend,
     init: init,
     isTypeOf: isTypeOf,
     load: load,
